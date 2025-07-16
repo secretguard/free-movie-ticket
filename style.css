@@ -1,20 +1,72 @@
 body {
-  background-color: white;
-  color: black;
-  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to bottom right, #f7f7f7, #e0f7fa);
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 90%;
+  max-width: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  padding: 30px 25px;
   text-align: center;
-  padding-top: 100px;
 }
 
-#loader {
-  font-size: 1.2em;
+.card h1 {
+  color: #00838f;
+  margin-bottom: 10px;
 }
 
-#fakeForm {
+.card p {
+  font-size: 16px;
+  margin: 10px 0;
+}
+
+button {
+  padding: 12px 20px;
+  background-color: #00bfa5;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
   margin-top: 20px;
 }
 
-#fakeForm input {
+button:hover {
+  background-color: #009e88;
+}
+
+#video {
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+
+#loader {
+  font-size: 14px;
+  margin-top: 20px;
+  color: gray;
+}
+
+input[type="text"] {
   padding: 10px;
+  width: 80%;
   font-size: 16px;
+  margin-top: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.note {
+  font-size: 12px;
+  color: gray;
+  margin-top: 8px;
 }

